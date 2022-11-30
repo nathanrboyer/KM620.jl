@@ -18,13 +18,13 @@ K(R) = 1.5*R^1.5 - 0.5*R^2.5 - R^3.5 # KM-620.12
 σ_utst(σ_uts, m_2) = σ_uts * exp(m_2) # KM-620.13
 
 # Table KM-620 (NOTE: Ferritic steel includes carbon, low alloy, and alloy steels, and ferritic, martensitic, and iron-based age-hardening stainless steels.)
-const coefficients = DataFrame("Material" => ["Ferritic steel",
-                                        "Austenitic stainless steel and nickel-based alloys",
-                                        "Duplex stainless steel",
-                                        "Precipitation hardening, nickel based",
-                                        "Aluminum",
-                                        "Copper",
-                                        "Titanium and zirconium"],
+const coefficients_table = DataFrame("Material" => ["Ferritic steel",
+                                                        "Austenitic stainless steel and nickel-based alloys",
+                                                        "Duplex stainless steel",
+                                                        "Precipitation hardening, nickel based",
+                                                        "Aluminum",
+                                                        "Copper",
+                                                        "Titanium and zirconium"],
                                 "Maximum Temperature (°F)" => [900,
                                                         900,
                                                         900,
