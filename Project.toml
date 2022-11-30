@@ -2,3 +2,6 @@ name = "KM620"
 uuid = "0ccbab1c-04f8-4773-914b-89ad8e9d3a96"
 authors = ["nathanrboyer <nathanrobertboyer@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
