@@ -4,9 +4,9 @@
 
     set_chunk_defaults!(:echo => false)
 
-    weave(normpath(@__DIR__, "..", "src/KM620_nomenclature.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_nomenclature.pdf"))
-    weave(normpath(@__DIR__, "..", "src/KM620_equations.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_equations.pdf"))
-    weave(normpath(@__DIR__, "..", "test/latexify_tables.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_tables.pdf"))
+    weave(normpath(@__DIR__, "..", "src", "KM620_nomenclature.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_nomenclature.pdf"))
+    weave(normpath(@__DIR__, "..", "src", "KM620_equations.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_equations.pdf"))
+    weave(normpath(@__DIR__, "..", "test", "latexify_tables.jl"); doctype = "md2pdf", out_path = normpath(@__DIR__, "..", "KM620_tables.pdf"))
 
     rm(normpath(@__DIR__, "..", "KM620_nomenclature.aux"))
     rm(normpath(@__DIR__, "..", "KM620_nomenclature.log"))
