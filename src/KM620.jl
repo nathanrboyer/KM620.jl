@@ -1,7 +1,6 @@
 module KM620
 
-using DataFrames, Latexify, LaTeXStrings
-
-include("KM620_.jl")
+include("KM620_equations.jl")
+include("KM620_tables.jl")
 
 end # module KM620
