@@ -1,4 +1,4 @@
-#@testitem "show equations" begin
+#@testitem "Weave" begin
 
     using DataFrames, Latexify, LaTeXStrings, Weave, Test
 
@@ -24,4 +24,5 @@
     @test isfile(normpath(@__DIR__, "..", "KM620_nomenclature.pdf"))
     @test isfile(normpath(@__DIR__, "..", "KM620_equations.pdf"))
     @test isfile(normpath(@__DIR__, "..", "KM620_tables.pdf"))
+
 #end
