@@ -85,11 +85,11 @@ const coefficients_table_forprinting = DataFrame(
 const coefficients_table = select(coefficients_table_forprinting,
                             L"Material" => "Material",
                             L"Max.\ Temp.\ (F)" => "Maximum Temperature (°F)",
-                            L"m_2" => ByRow(x->expr2func(x,:R)) => "m_2",
-                            L"m_3" => ByRow(x->expr2func(x,:El)) => "m_3",
-                            L"m_4" => ByRow(x->expr2func(x,:RA)) => "m_4",
-                            L"m_5" => "m_5",
-                            L"\epsilon_p" => "ϵ_p"
+                            L"m_2" => ByRow(x->expr2func(x,:R)) => "m₂",
+                            L"m_3" => ByRow(x->expr2func(x,:El)) => "m₃",
+                            L"m_4" => ByRow(x->expr2func(x,:RA)) => "m₄",
+                            L"m_5" => "m₅",
+                            L"\epsilon_p" => "ϵₚ"
                             )
 
 # Should be able to make the table header say L"Max.\ Temp.\ (\degree F)" instead once Weave issues are fixed.
