@@ -31,7 +31,7 @@ function unlatex(s::LaTeXString)
     replace(s, "\$"=>"", "\\"=>"")
 end
 
-const coefficients_table_forprinting = DataFrame(
+const coefficients_table_for_printing = DataFrame(
         L"Material" => ["Ferritic steel",
                         "Austenitic stainless steel and nickel-based alloys",
                         "Duplex stainless steel",
@@ -82,15 +82,14 @@ const coefficients_table_forprinting = DataFrame(
                 5.0E-6,
                 2.0E-5])
 
-const coefficients_table = select(coefficients_table_forprinting,
-                            L"Material" => "Material",
-                            L"Max.\ Temp.\ (F)" => "Maximum Temperature (°F)",
-                            L"m_2" => ByRow(x->expr2func(x,:R)) => "m₂",
-                            L"m_3" => ByRow(x->expr2func(x,:El)) => "m₃",
-                            L"m_4" => ByRow(x->expr2func(x,:RA)) => "m₄",
-                            L"m_5" => "m₅",
-                            L"\epsilon_p" => "ϵₚ"
-                            )
+const coefficients_table = select(coefficients_table_for_printing,
+                                  L"Material" => "Material",
+                                  L"Max.\ Temp.\ (F)" => "Maximum Temperature (°F)",
+                                  L"m_2" => ByRow(x->expr2func(x,:R)) => "m₂",
+                                  L"m_3" => ByRow(x->expr2func(x,:El)) => "m₃",
+                                  L"m_4" => ByRow(x->expr2func(x,:RA)) => "m₄",
+                                  L"m_5" => "m₅",
+                                  L"\epsilon_p" => "ϵₚ")
 
 # Should be able to make the table header say L"Max.\ Temp.\ (\degree F)" instead once Weave issues are fixed.
 # https://github.com/JunoLab/Weave.jl/issues/392
