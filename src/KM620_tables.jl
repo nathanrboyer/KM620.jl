@@ -48,7 +48,7 @@ function parse_table_KM620(path::AbstractString)
     return df
 end
 
-const coefficients_table_for_printing = parse_table_KM620("Table KM-620.csv")
+const coefficients_table_for_printing = parse_table_KM620(normpath(@__DIR__, "..", "Table KM-620.csv"))
 
 const coefficients_table = transform(
     coefficients_table_for_printing,
