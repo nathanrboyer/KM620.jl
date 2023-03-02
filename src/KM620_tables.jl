@@ -1,7 +1,7 @@
 #' ---
 #' title : Table KM-620
 #' ---
-using DataFrames, Latexify, LaTeXStrings
+using CSV, DataFrames, Latexify, LaTeXStrings
 
 """
     expr2func(expr::Expr, var::Symbol) -> func::Function
@@ -24,73 +24,36 @@ function expr2func(expr::Expr, var::Symbol)
 end
 
 """
-    unlatex(s::LaTeXString) -> s::String
-Removes `\$` and `\\` characters from a string `s`.
+    ln_to_log(s::AbstractString)
+
+Julia uses log(x) for natural logarithm.
+There is no `ln` function, so must transform strings containing ln() to use log() instead.
+If input is not a string, then input is returned as is.
 """
-function unlatex(s::LaTeXString)
-    replace(s, "\$"=>"", "\\"=>"")
+ln_to_log(s::AbstractString) = replace(s, "ln(" => "log(")
+ln_to_log(s) = s # Do nothing if not a string.
+
+"""
+    parse_table_KM620(path::AbstractString)
+
+Read Table KM-620 from CSV file `path` into a DataFrame and parse the functions into expressions.
+"""
+function parse_table_KM620(path::AbstractString)
+    df = DataFrame(CSV.File(path))
+    transform!(df, All() .=> ByRow(ln_to_log), renamecols=false)
+    transform!(df, "m₂" => ByRow(Meta.parse), renamecols=false)
+    transform!(df, "m₃" => ByRow(Meta.parse), renamecols=false)
+    transform!(df, "m₄" => ByRow(Meta.parse), renamecols=false)
+    metadata!(df, "Note 1", "(1) Ferritic steel includes carbon, low alloy, and alloy steels, and ferritic, martensitic, and iron-based age-hardening stainless steels.", style=:note)
+    return df
 end
 
-const coefficients_table_for_printing = DataFrame(
-        L"Material" => ["Ferritic steel",
-                        "Austenitic stainless steel and nickel-based alloys",
-                        "Duplex stainless steel",
-                        "Precipitation hardening, nickel based",
-                        "Aluminum",
-                        "Copper",
-                        "Titanium and zirconium"],
-        L"Max.\ Temp.\ (F)" => [900,
-                                900,
-                                900,
-                                1000,
-                                250,
-                                150,
-                                500],
-        L"m_2" => [:(0.60 * (1.00 - R)),
-                :(0.75 * (1.00 - R)),
-                :(0.70 * (0.95 - R)),
-                :(1.09 * (0.93 - R)),
-                :(0.52 * (0.98 - R)),
-                :(0.50 * (1.00 - R)),
-                :(0.50 * (0.98 - R))],
-        L"m_3" => [:(2*log(1+(El/100))),
-                :(3*log(1+(El/100))),
-                :(2*log(1+(El/100))),
-                :(1*log(1+(El/100))),
-                :(1.3*log(1+(El/100))),
-                :(2*log(1+(El/100))),
-                :(1.3*log(1+(El/100)))],
-        L"m_4" => [:(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA))),
-                :(log(100 / (100 - RA)))],
-        L"m_5" => [2.2,
-                0.6,
-                2.2,
-                2.2,
-                2.2,
-                2.2,
-                2.2],
-        L"\epsilon_p" => [2.0E-5,
-                2.0E-5,
-                2.0E-5,
-                2.0E-5,
-                5.0E-6,
-                5.0E-6,
-                2.0E-5])
+const coefficients_table_for_printing = parse_table_KM620("Table KM-620.csv")
 
-const coefficients_table = select(coefficients_table_for_printing,
-                                  L"Material" => "Material",
-                                  L"Max.\ Temp.\ (F)" => "Maximum Temperature (°F)",
-                                  L"m_2" => ByRow(x->expr2func(x,:R)) => "m₂",
-                                  L"m_3" => ByRow(x->expr2func(x,:El)) => "m₃",
-                                  L"m_4" => ByRow(x->expr2func(x,:RA)) => "m₄",
-                                  L"m_5" => "m₅",
-                                  L"\epsilon_p" => "ϵₚ")
-
-# Should be able to make the table header say L"Max.\ Temp.\ (\degree F)" instead once Weave issues are fixed.
-# https://github.com/JunoLab/Weave.jl/issues/392
-# https://github.com/JunoLab/Weave.jl/issues/418
+const coefficients_table = transform(
+    coefficients_table_for_printing,
+    "m₂" => ByRow(x->expr2func(x,:R)),
+    "m₃" => ByRow(x->expr2func(x,:El)),
+    "m₄" => ByRow(x->expr2func(x,:RA)),
+    renamecols=false,
+)
