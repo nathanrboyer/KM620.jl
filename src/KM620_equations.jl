@@ -86,3 +86,7 @@ function plasticity(u, p)
     γ_2_value = γ_2(ϵ_2_value, H_value)              # KM-620.4
     return γ_1_value + γ_2_value - ϵ_p  # (<= 0)     # KM-620.2
 end
+
+#' **Note:**
+#' *The above equations are confirmed identical to those of Division 2 Annex 3-D.3,*
+#' *so the resulting stress-strain curves may be used for either division.*
