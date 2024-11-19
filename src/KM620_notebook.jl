@@ -5,6 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 619c6125-0c6b-4e77-a18d-2c968e33037c
+# ╠═╡ show_logs = false
 # ╠═╡ skip_as_script = true
 #=╠═╡
 begin
@@ -379,6 +380,27 @@ end
 # ╔═╡ bdf3cbcd-aa2f-45de-ab10-746b793052d9
 print_table_notes(coefficients_table_for_printing)
 
+# ╔═╡ 574d6f00-ca0d-47e1-a7e3-94e6c8cabf8d
+md"HTML Display Customization"
+
+# ╔═╡ 002e1c61-2cfd-4d97-b834-754c043f84aa
+html"""<style>
+pluto-output.scroll_y {
+    max-height: 600px;
+}
+"""
+
+# ╔═╡ 412c95b6-6067-46c4-ab61-406e0cce7cba
+html"""
+<style>
+body:not(.fake_class) main {
+	max-width: 70%;
+	margin-right: 0px;
+	align-self: center;
+}
+</style>
+"""
+
 # ╔═╡ Cell order:
 # ╟─e2e76d7e-4f29-455e-af81-07fe6cf85a5a
 # ╟─4285f1b7-e25a-448c-bae0-c6bc46a17ee4
@@ -426,3 +448,6 @@ print_table_notes(coefficients_table_for_printing)
 # ╟─3f247fd9-d3b0-4405-8e16-0d4230afd3aa
 # ╟─77a3138d-3703-4f07-a6c1-d8e7fdb86273
 # ╟─9fcd1dba-86ab-49d1-b7e7-260c77c4558b
+# ╟─574d6f00-ca0d-47e1-a7e3-94e6c8cabf8d
+# ╟─002e1c61-2cfd-4d97-b834-754c043f84aa
+# ╟─412c95b6-6067-46c4-ab61-406e0cce7cba
