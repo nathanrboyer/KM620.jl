@@ -17,7 +17,7 @@ end
   ╠═╡ =#
 
 # ╔═╡ ef4910c0-a5c8-11ef-0e00-67a503735431
-using Latexify, LaTeXStrings, DataFrames, CSV, PrettyTables
+using Latexify, LaTeXStrings, DataFrames, CSV, PrettyTables, HypertextLiteral
 
 # ╔═╡ e2e76d7e-4f29-455e-af81-07fe6cf85a5a
 md"""
@@ -275,9 +275,39 @@ function expr2func(expr::Expr, var::Symbol)
     func = eval(:($var -> $expr))
 end
 
+# ╔═╡ 9fcd1dba-86ab-49d1-b7e7-260c77c4558b
+"""
+	print_table_notes(df; keyleft="", keyright="")
+
+Return the data frame metadata as a markdown string.
+Optional `keyleft`, `keyright`, `valleft`, and `valright` parameters allow markdown
+format characters to be placed to the left and right of the header and metadata.
+"""
+function print_table_notes(df; keyleft = "*", keyright = ":*", valleft = "*", valright = "*")
+	io = IOBuffer()
+	for (key, value) in metadata(df)
+		print(io, keyleft)
+		print(io, key)
+		println(io, keyright)
+		println(io, "")
+		if typeof(value) <: AbstractVector
+			for element in value
+				print(io, valleft)
+				print(io, element)
+				println(io, valright)
+			end
+		else
+			print(io, valleft)
+			print(io, value)
+			println(io, valright)
+		end
+	end
+	return Markdown.parse(seekstart(io))
+end
+
 # ╔═╡ 93e8f1a6-adc5-4938-8d6a-c1d3a0ac6939
 """
-    ln_to_log(s::AbstractString)
+    ln_to_log(s)
 
 Julia uses log(x) for natural logarithm.
 There is no `ln` function, so must transform strings containing ln() to use log() instead.
@@ -286,7 +316,7 @@ If input is not a string, then input is returned as is.
 ln_to_log(s::AbstractString) = replace(s, "ln(" => "log(")
 
 # ╔═╡ 8139ce64-b7fd-4507-a8d1-ed7ab7e875ce
-ln_to_log(s) = s; # Do nothing if not a string.
+ln_to_log(s) = s;  # Do nothing if not a string.
 
 # ╔═╡ 3f247fd9-d3b0-4405-8e16-0d4230afd3aa
 """
@@ -311,6 +341,51 @@ function parse_table_KM620(path::AbstractString)
     return df
 end
 
+# ╔═╡ 574d6f00-ca0d-47e1-a7e3-94e6c8cabf8d
+md"HTML Display Customization"
+
+# ╔═╡ 412c95b6-6067-46c4-ab61-406e0cce7cba
+# Reference: https://discourse.julialang.org/t/pluto-pdf-and-printing/65055/5?u=nathan_boyer
+html"""
+<style>
+body:not(.fake_class) main {
+	max-width: 54%;
+	margin-right: 0px;
+	align-self: center;
+}
+</style>
+"""
+
+# ╔═╡ a1a45dab-d0a1-4309-ba92-a3e9b2ed467b
+# Reference: https://github.com/ronisbr/PrettyTables.jl/issues/251#issuecomment-2488540185
+katex_imports = @htl """
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+	""";
+
+# ╔═╡ 9ff5d8bb-f266-4783-ab6e-fc19580f5a56
+# Reference: https://github.com/ronisbr/PrettyTables.jl/issues/251#issuecomment-2488540185
+function render_math(html_showable_object)
+	@htl """
+	$(katex_imports)
+	<div>
+	$(html_showable_object)
+
+	<script>
+	console.log(currentScript.parentElement)
+	window.renderMathInElement(currentScript.parentElement, {
+		delimiters: [
+              {left: '\$', right: '\$', display: true},
+		],
+		preProcess: str => str.replaceAll("\\\\\\\\", "\\\\"),
+	})
+	</script>
+	</div>
+	"""
+end;
+
 # ╔═╡ 77a3138d-3703-4f07-a6c1-d8e7fdb86273
 """
     beautify(df::DataFrame)
@@ -324,23 +399,24 @@ function beautify(df::DataFrame)
 			transform!(bdf, col => ByRow(latexify), renamecols=false)
         end
     end
-	header = ["Material", "Max. Temp.", "m₂", "m₃", "m₄", "m₅", "ϵₚ"]
-    # header = [L"Material", L"Max.\ Temp.", L"m_2", L"m_3", L"m_4", L"m_5", L"\epsilon_p"]
-	# pt = pretty_table(
-	# 	HTML,
-	# 	bdf,
-	# 	header = header,
-	#  backend=Val(:html),
-	# )
-    #return pt
-	return rename!(bdf, header)
+    header = [L"Material", L"Max.\ Temp.", L"m_2", L"m_3", L"m_4", L"m_5", L"\epsilon_p"]
+	pt = pretty_table(
+		HTML,
+		bdf,
+		header = header,
+		alignment = [:l, :r, :r, :c, :c, :c, :c],
+	)
+    return render_math(pt)
 end
 
 # ╔═╡ e15c132b-6fc9-44a1-9cc6-aa0e5dab86a4
 begin
-const coefficients_table_for_printing = parse_table_KM620(normpath(@__FILE__, "..", "..", "Table KM-620.csv"))
+	const coefficients_table_for_printing = parse_table_KM620(normpath(@__FILE__, "..", "..", "Table KM-620.csv"))
 	beautify(coefficients_table_for_printing)
 end
+
+# ╔═╡ bdf3cbcd-aa2f-45de-ab10-746b793052d9
+print_table_notes(coefficients_table_for_printing)
 
 # ╔═╡ 299fcd18-4463-41b9-a316-82668202a3d5
 const coefficients_table = transform(
@@ -350,56 +426,6 @@ const coefficients_table = transform(
     "m₄" => ByRow(x->expr2func(x,:RA)),
     renamecols=false,
 );
-
-# ╔═╡ 9fcd1dba-86ab-49d1-b7e7-260c77c4558b
-"""
-	print_table_notes(df; keyleft="", keyright="")
-
-Return the data frame metadata as a markdown string.
-Optional `keyleft` and `keyright` parameters allow markdown format characters
-to be placed to the left and right of the header (metadata key).
-"""
-function print_table_notes(df; keyleft = "*", keyright = ":*")
-	io = IOBuffer()
-	for (key, value) in metadata(df)
-		print(io, keyleft)
-		print(io, key)
-		println(io, keyright)
-		println(io, "")
-		if typeof(value) <: AbstractVector
-			for element in value
-				println(io, element)
-			end
-		else
-			println(io, value)
-		end
-	end
-	return Markdown.parse(seekstart(io))
-end
-
-# ╔═╡ bdf3cbcd-aa2f-45de-ab10-746b793052d9
-print_table_notes(coefficients_table_for_printing)
-
-# ╔═╡ 574d6f00-ca0d-47e1-a7e3-94e6c8cabf8d
-md"HTML Display Customization"
-
-# ╔═╡ 002e1c61-2cfd-4d97-b834-754c043f84aa
-html"""<style>
-pluto-output.scroll_y {
-    max-height: 600px;
-}
-"""
-
-# ╔═╡ 412c95b6-6067-46c4-ab61-406e0cce7cba
-html"""
-<style>
-body:not(.fake_class) main {
-	max-width: 70%;
-	margin-right: 0px;
-	align-self: center;
-}
-</style>
-"""
 
 # ╔═╡ Cell order:
 # ╟─e2e76d7e-4f29-455e-af81-07fe6cf85a5a
@@ -439,15 +465,16 @@ body:not(.fake_class) main {
 # ╟─47820a10-9b8c-44a6-a82a-2c45cfef835a
 # ╟─1e41aea5-2635-4a56-89bd-29f0d6e25b78
 # ╟─619c6125-0c6b-4e77-a18d-2c968e33037c
-# ╟─ef4910c0-a5c8-11ef-0e00-67a503735431
 # ╟─f4d3823d-9b6f-4a42-b39a-dc1bb78be91c
 # ╟─dd643d77-994f-4fa0-85b4-6f7d82acc6db
 # ╟─1610beb1-974e-4e60-85b6-274a3b6ffb5f
-# ╟─93e8f1a6-adc5-4938-8d6a-c1d3a0ac6939
-# ╟─8139ce64-b7fd-4507-a8d1-ed7ab7e875ce
 # ╟─3f247fd9-d3b0-4405-8e16-0d4230afd3aa
 # ╟─77a3138d-3703-4f07-a6c1-d8e7fdb86273
 # ╟─9fcd1dba-86ab-49d1-b7e7-260c77c4558b
+# ╟─93e8f1a6-adc5-4938-8d6a-c1d3a0ac6939
+# ╟─8139ce64-b7fd-4507-a8d1-ed7ab7e875ce
+# ╟─ef4910c0-a5c8-11ef-0e00-67a503735431
 # ╟─574d6f00-ca0d-47e1-a7e3-94e6c8cabf8d
-# ╟─002e1c61-2cfd-4d97-b834-754c043f84aa
 # ╟─412c95b6-6067-46c4-ab61-406e0cce7cba
+# ╟─a1a45dab-d0a1-4309-ba92-a3e9b2ed467b
+# ╟─9ff5d8bb-f266-4783-ab6e-fc19580f5a56
