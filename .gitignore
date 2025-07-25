@@ -1,4 +1,4 @@
 .vscode
 LOCAL_APPDATA_FONTCONFIG_CACHE
-Manifest.toml
-test/Manifest.toml
+Manifest*
+test/Manifest*
